@@ -1,1 +1,33 @@
+# Apply the requested edits and save a new HTML file
+from pathlib import Path
+import re
+
+src = Path("/mnt/data/5ef94eb8-46a7-49d2-9511-e48211f4b4b9.html")
+html = src.read_text(encoding="utf-8", errors="ignore")
+
+# 1) Update the hero image source to 'imagenes/clasesingles2.webp' and refresh the alt text
+html = re.sub(
+    r'(<div\s+class="heroimg">\s*<img\s+[^>]*src=")[^"]*(")([^>]*alt=")[^"]*(")',
+    r'\1imagenes/clasesingles2.webp\2\3Clases de inglés - SETECPERU\4',
+    html,
+    flags=re.DOTALL | re.IGNORECASE
+)
+
+# 2) Remove the phrase "Cursos de idiomas básico, intermedio y avanzado" anywhere it appears (including alt remnants)
+html = html.replace("Cursos de idiomas básico, intermedio y avanzado", "")
+
+# 3) If there were any icon next to that phrase inside a tag like <span class="icon">...</span>, remove that span entirely.
+# This is a safe clean-up; it will only remove spans that contain that exact phrase.
+html = re.sub(
+    r'<span[^>]*>\s*(?:Cursos de idiomas básico, intermedio y avanzado)\s*</span>',
+    '',
+    html,
+    flags=re.IGNORECASE
+)
+
+# Save updated file
+out = Path("/mnt/data/index_idiomas_edit.html")
+out.write_text(html, encoding="utf-8")
+
+print("Hecho. Archivo actualizado guardado como:", out)
 
